@@ -27,14 +27,14 @@ public class Productos {
     @NotNull(message = "El precio del producto es obligatorio")
     @DecimalMin(value="0.01",message = "El precio del producto debe ser mayor a 0")
     @Column(nullable=false)
-    private double precio;
+    private Double precio;
     @NotNull(message = "El stock es obligatorio")
     @Min(value = 0, message = "El stock no puede ser negativo")
     @Column(nullable = false)
     private Integer stock;
     @NotNull(message = "El estado del producto es obligatorio")
     @Column(nullable = false)
-    private boolean estadoProducto; //Disponible=true o no disponible=false
+    private Boolean estadoProducto; //Disponible=true o no disponible=false
 
 }
 
