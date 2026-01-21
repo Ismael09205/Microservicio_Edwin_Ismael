@@ -18,9 +18,9 @@ public class Productos {
     private Long idProducto;
     @NotBlank (message = "El nombre del producto no puede estar vacio")
     @Size(min=3,max=100, message = "El nombre del producto debe tener entre 3 y 100 caracteres")
-    @Column(name="nombre_producto", nullable = false)
+    @Column(name="nombre_producto", nullable = false,unique = true)
     private String nombreProducto;
-    @NotBlank(message = "El precio del producto es obligatorio")
+    @NotBlank(message = "La descripcion del producto es obligatoria")
     @Size(min = 5, max = 255, message = "La descripción debe tener entre 5 y 255 caracteres")
     @Column(length = 255)
     private String descripcion;

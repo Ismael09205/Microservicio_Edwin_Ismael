@@ -11,23 +11,46 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@CrossOrigin(origins = "*")
 @RestController
-@RequestMapping ("/api/")
+@RequestMapping ("/productos/")
 public class ProductosController {
-    @Autowired
+
     private ProductosService productosService;
-    @PostMapping("productos")
-    public ResponseEntity<Productos> crearProducto(@Valid @RequestBody Productos producto){
-    Productos productoGuardado=productosService.createProducto(producto);
-    return new ResponseEntity<Productos>(productoGuardado, HttpStatus.CREATED);
+
+    public ProductosController(ProductosService productosService) {
+        this.productosService = productosService;
+    }
+
+    //Crear Producto
+    @PostMapping("crear")
+    public ResponseEntity<Productos> crearProducto(@Valid @RequestBody Productos producto) {
+        Productos productoGuardado = productosService.saveProducts(producto);
+        return new ResponseEntity<Productos>(productoGuardado, HttpStatus.CREATED);
 
     }
-    @GetMapping ("mostrarProductos")
-    public List<Productos>listarTodos(){
-        return productosService.listarProductos();
-    };
+    //Listar Productos
+    @GetMapping("mostrarProductos")
+    public ResponseEntity<List<Productos>> listarTodos() {
+        return ResponseEntity.ok(productosService.getProducts());
+    }
+    //Obtener Por Id
+    @GetMapping("productosObtener/{id}")
+    public ResponseEntity<Productos> obtenerPorId(@PathVariable Long id) {
+       return ResponseEntity.ok(productosService.findProducts(id));
+    }
+    //Actualizar Producto
+    @PatchMapping("productosActualizar/{id}")
+    public ResponseEntity<Productos> actualizarProducto(@PathVariable Long id, @Valid @RequestBody Productos productoActualizado) {
+
+        return ResponseEntity.ok(productosService.updateProducts(id, productoActualizado));
+
+    }
+    //Eliminar Producto
+    @DeleteMapping("eliminar/{id}")
+    public ResponseEntity<Void> eliminarProducto(@PathVariable Long id) {
+        productosService.deleteProducts(id);
+        return ResponseEntity.noContent().build();
+    }
 
 }
-
-

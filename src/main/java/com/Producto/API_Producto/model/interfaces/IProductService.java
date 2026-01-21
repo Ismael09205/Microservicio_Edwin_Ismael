@@ -10,7 +10,7 @@ public interface IProductService {
     //Obtener los productos por ID
     public Productos findProducts(Long id);
     //Guardar Productos
-    public void  saveProducts(Productos productos);
+    public Productos  saveProducts(Productos productos);
     //Eliminar Productos
     public void deleteProducts(Long id);
     //Actualizar Productos
