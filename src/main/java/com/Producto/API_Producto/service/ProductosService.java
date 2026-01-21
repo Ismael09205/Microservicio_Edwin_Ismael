@@ -1,66 +1,57 @@
 package com.Producto.API_Producto.service;
 
-import com.Producto.API_Producto.model.entities.Productos;
+import com.Producto.API_Producto.model.entities.Producto;
 import com.Producto.API_Producto.model.exceptions.ProductoNoEncontradoException;
 import com.Producto.API_Producto.model.interfaces.IProductService;
 import com.Producto.API_Producto.repository.ProductoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public class ProductosService implements IProductService {
-    public final ProductoRepository ProductoRepository;
+    public final ProductoRepository productoRepository;
 
+    @Autowired
     public ProductosService(ProductoRepository productoRepository) {
-        ProductoRepository = productoRepository;
+        this.productoRepository = productoRepository;
     }
 
     @Override
-    public List<Productos> getProducts() {
-        List<Productos> listProducts=ProductoRepository.findAll();
-        return listProducts;
+    public List<Producto> getProducts() {
+        return productoRepository.findAll();
     }
 
     @Override
-    public Productos findProducts(Long id) {
-        return ProductoRepository.findById(id).orElseThrow(()-> new ProductoNoEncontradoException(id));
+    public Producto findProductsForID(Long id) {
+        return productoRepository.findById(id).orElseThrow(() ->
+                new ProductoNoEncontradoException(id));
     }
 
     @Override
-    public void saveProducts(Productos productos) {
-        ProductoRepository.save(productos);
+    public Producto saveProducts(Producto productos) {
+        return productoRepository.save(productos);
+    }
+
+    @Override
+    public Producto updateProducts(Long id, Producto productosNuevos) {
+
+        Producto existeProducto = findProductsForID(id);
+
+        existeProducto.setNombreProducto(productosNuevos.getNombreProducto());
+        existeProducto.setDescripcion(productosNuevos.getDescripcion());
+        existeProducto.setPrecio(productosNuevos.getPrecio());
+        existeProducto.setStock(productosNuevos.getStock());
+        existeProducto.setEstadoProducto(productosNuevos.getEstadoProducto());
+        existeProducto.setFechaRegistro(productosNuevos.getFechaRegistro());
+
+        return productoRepository.save(existeProducto);
     }
 
     @Override
     public void deleteProducts(Long id) {
-        ProductoRepository.deleteById(id);
-    }
-
-    @Override
-    public Productos updateProducts(Long id,Productos productosNuevos) {
-        Productos productoExistente=ProductoRepository.findById(id).orElse(null);
-        if(productoExistente==null){
-            return null;
-        }
-        if(productosNuevos.getNombreProducto()!=null){
-            productoExistente.setNombreProducto(productosNuevos.getNombreProducto());
-        }
-        if(productosNuevos.getDescripcion()!=null){
-            productoExistente.setDescripcion(productosNuevos.getDescripcion());
-    }
-        if(productosNuevos.getPrecio()!=null){
-            productoExistente.setPrecio(productosNuevos.getPrecio());
-        }
-        if(productosNuevos.getStock()!=null){
-            productoExistente.setPrecio(productosNuevos.getPrecio());
-        }
-        if(productosNuevos.getEstadoProducto()!=null){
-            productoExistente.setEstadoProducto(productosNuevos.getEstadoProducto());
-        }
-        ProductoRepository.save(productoExistente);
-        return productoExistente;
+        Producto producto = findProductsForID(id);
+        productoRepository.delete(producto);
     }
 }

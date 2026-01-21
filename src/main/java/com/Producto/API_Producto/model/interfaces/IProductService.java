@@ -1,18 +1,25 @@
 package com.Producto.API_Producto.model.interfaces;
 
-import com.Producto.API_Producto.model.entities.Productos;
+import com.Producto.API_Producto.model.entities.Producto;
 
 import java.util.List;
 
 public interface IProductService {
+
     //Obtener Todos los Productos
-    public List<Productos> getProducts();
+    public List<Producto> getProducts();
+
     //Obtener los productos por ID
-    public Productos findProducts(Long id);
+    public Producto findProductsForID(Long id);
+
     //Guardar Productos
-    public void  saveProducts(Productos productos);
+    public Producto saveProducts(Producto productos);
+
+    //Actualizar Productos
+    public Producto updateProducts(Long id, Producto productosNuevos);
+
     //Eliminar Productos
     public void deleteProducts(Long id);
-    //Actualizar Productos
-    public Productos updateProducts(Long id,Productos productosNuevos);
+
+
 }
