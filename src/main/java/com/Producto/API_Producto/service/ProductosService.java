@@ -7,18 +7,18 @@ import com.Producto.API_Producto.model.exceptions.ProductoExistenteException;
 import com.Producto.API_Producto.model.exceptions.ProductoNoEncontradoException;
 import com.Producto.API_Producto.model.interfaces.IProductService;
 import com.Producto.API_Producto.repository.ProductoRepository;
-import com.Producto.API_Producto.util.NormalizerText;
-import org.hibernate.sql.Update;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.List;
+import java.util.Random;
 
 @Service
 public class ProductosService implements IProductService {
 
     public final ProductoRepository productoRepository;
+    private final Random random = new Random();
 
     @Autowired
     public ProductosService(ProductoRepository productoRepository) {
@@ -40,17 +40,23 @@ public class ProductosService implements IProductService {
     @Override
     public Producto saveProduct(ProductCreateDTO dto) {
         Producto producto = new Producto();
-        String nombreNormalizado = NormalizerText.normalizar(dto.getNombreProducto());
 
-        if (productoRepository.existsByNombreProducto(nombreNormalizado)) {
-            throw new ProductoExistenteException(dto.getNombreProducto());
+        String codigoUnico;
+        do {
+            codigoUnico = generarCodigoUnico();
+        }while(productoRepository.existsByCodigoUnico(codigoUnico));
+
+        if (productoRepository.existsByCodigoUnico(codigoUnico)){
+            throw new ProductoExistenteException(codigoUnico);
         }
 
-        producto.setNombreProducto(nombreNormalizado);
+        producto.setCodigoUnico(codigoUnico);
+        producto.setNombreProducto(dto.getNombreProducto());
         producto.setDescripcion(dto.getDescripcion());
         producto.setPrecio(dto.getPrecio());
         producto.setStock(dto.getStock());
         producto.setEstadoProducto(dto.getEstadoProducto());
+        producto.setImagenURL(dto.getImagenURL());
 
         return productoRepository.save(producto);
 
@@ -69,16 +75,8 @@ public class ProductosService implements IProductService {
         Producto productoExistente= productoRepository.findById(id)
                 .orElseThrow(() -> new ProductoNoEncontradoException(id));
 
-        if(dto.getNombreProducto() != null){
-            String nombreNormalizado = NormalizerText.normalizar(dto.getNombreProducto());
-
-            //Se verifica que no exista otro producto con el mismo nombre para evitar duplicados en la bases de datos
-            boolean productExist = productoRepository.existsByNombreProductoAndIdProductoNot(nombreNormalizado, id)
-                    && !productoExistente.getNombreProducto().equalsIgnoreCase(nombreNormalizado);
-            if(productExist){
-                throw new ProductoExistenteException(dto.getNombreProducto());
-            }
-            productoExistente.setNombreProducto(nombreNormalizado);
+        if (dto.getNombreProducto() != null){
+            productoExistente.setNombreProducto(dto.getNombreProducto());
         }
 
         if(dto.getDescripcion()!=null){
@@ -94,6 +92,14 @@ public class ProductosService implements IProductService {
         if(dto.getEstadoProducto()!=null){
             productoExistente.setEstadoProducto(dto.getEstadoProducto());
         }
+        if (dto.getImagenURL()!=null){
+            productoExistente.setImagenURL(dto.getImagenURL());
+        }
         return productoRepository.save(productoExistente);
+    }
+
+    private String generarCodigoUnico(){
+        long numero = (long) (random.nextDouble()*1_000_000_000_000L);
+        return "PROD-"+String.format("%012d", numero);
     }
 }

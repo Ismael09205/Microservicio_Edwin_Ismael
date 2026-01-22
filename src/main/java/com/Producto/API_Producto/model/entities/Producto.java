@@ -24,6 +24,8 @@ public class Producto {
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long idProducto;
 
+    @NotBlank(message = "IMPORTANTE: El codigo unico no debe de estar vacío")
+    @Column(name = "codigo_unico", nullable = false, unique = true, updatable = false)
     private String codigoUnico;
 
     @NotBlank (message = "El nombre del producto no puede estar vacío")
@@ -50,7 +52,9 @@ public class Producto {
     @Column(name = "estado_producto", nullable = false)
     private Boolean estadoProducto; //Disponible=true o no disponible=false
 
-    private String imagenURL;
+    @Size(max = 500, message = "La URL de la imagen es demasiado larga")
+    @Column(name = "imagen_url",length = 500)
+    private String imagenURL = "Sin imagen";
 
     @Column(name = "fecha_registro", updatable = false)
     @CreationTimestamp

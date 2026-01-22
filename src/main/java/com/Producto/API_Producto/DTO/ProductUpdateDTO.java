@@ -1,6 +1,7 @@
 package com.Producto.API_Producto.DTO;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -29,4 +30,8 @@ public class ProductUpdateDTO {
     private Integer stock;
 
     private Boolean estadoProducto;
+
+    @Size(max = 500, message = "La URL de la imagen es demasiado larga")
+    @Column(name = "imagen_url",length = 500)
+    private String imagenURL;
 }

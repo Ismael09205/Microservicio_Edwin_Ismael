@@ -38,7 +38,7 @@ public class ExceptionHandlerGlobal {
      }
 
 
-     //Producto Existente
+     //Producto Existente(409)
     @ExceptionHandler(ProductoExistenteException.class)
     public ResponseEntity<DTOErrorResponse> handleProductExist(ProductoExistenteException ex, HttpServletRequest request){
        DTOErrorResponse error =new DTOErrorResponse(
@@ -53,7 +53,7 @@ public class ExceptionHandlerGlobal {
                .body(error);
     }
 
-    //Tipo de dato Incorrecto
+    //Tipo de dato Incorrecto(400)
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<DTOErrorResponse> handleTypeMismatch(
             MethodArgumentTypeMismatchException ex,
@@ -69,7 +69,7 @@ public class ExceptionHandlerGlobal {
         return ResponseEntity.badRequest().body(error);
     }
 
-    //Excepcion JSON mal formado
+    //Excepcion JSON mal formado(400)
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<DTOErrorResponse> handleJsonError(
             HttpMessageNotReadableException ex,
@@ -84,7 +84,7 @@ public class ExceptionHandlerGlobal {
         return ResponseEntity.badRequest().body(error);
     }
 
-    //Validaciones
+    //Validaciones(400)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<DTOErrorResponse> handleValidation(
             MethodArgumentNotValidException ex,
@@ -105,7 +105,7 @@ public class ExceptionHandlerGlobal {
         return ResponseEntity.badRequest().body(error);
     }
 
-    //Excepcion general por si pasa errores inesperados
+    //Excepcion general por si pasa errores inesperados(500)
     @ExceptionHandler(Exception.class)
     public ResponseEntity<DTOErrorResponse> handleGeneral(Exception ex, HttpServletRequest request){
         String mensaje = "Ocurrio un error inesperado: ";

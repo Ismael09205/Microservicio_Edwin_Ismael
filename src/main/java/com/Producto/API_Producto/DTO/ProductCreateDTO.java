@@ -1,5 +1,6 @@
 package com.Producto.API_Producto.DTO;
 
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,6 +13,8 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductCreateDTO {
+
+    private String codigoUnico;
 
     @NotBlank(message = "El nombre del producto no puede estar vacío")
     @Size(min = 3, max = 100, message = "El nombre del producto debe tener entre 3 y 100 caracteres")
@@ -33,4 +36,8 @@ public class ProductCreateDTO {
 
     @NotNull(message = "El estado del producto es obligatorio")
     private Boolean estadoProducto; // true = Disponible, false = No disponible
+
+    @Size(max = 500, message = "La URL de la imagen es demasiado larga")
+    @Column(name = "imagen_url",length = 500)
+    private String imagenURL;
 }
