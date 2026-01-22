@@ -27,8 +27,7 @@ public class ProductosService implements IProductService {
 
     @Override
     public List<Producto> getProduct() {
-        List<Producto> listProducts= productoRepository.findAll();
-        return listProducts;
+        return productoRepository.findAll();
     }
 
     @Override
@@ -46,8 +45,8 @@ public class ProductosService implements IProductService {
             codigoUnico = generarCodigoUnico();
         }while(productoRepository.existsByCodigoUnico(codigoUnico));
 
-        if (productoRepository.existsByCodigoUnico(codigoUnico)){
-            throw new ProductoExistenteException(codigoUnico);
+        if (productoRepository.existsByNombreProducto(dto.getNombreProducto())) {
+            throw new ProductoExistenteException("El producto con nombre '" + dto.getNombreProducto() + "' ya existe.");
         }
 
         producto.setCodigoUnico(codigoUnico);
