@@ -1,80 +1,99 @@
 package com.Producto.API_Producto.service;
 
-import com.Producto.API_Producto.model.entities.Productos;
+import com.Producto.API_Producto.DTO.ProductCreateDTO;
+import com.Producto.API_Producto.DTO.ProductUpdateDTO;
+import com.Producto.API_Producto.model.entities.Producto;
 import com.Producto.API_Producto.model.exceptions.ProductoExistenteException;
 import com.Producto.API_Producto.model.exceptions.ProductoNoEncontradoException;
 import com.Producto.API_Producto.model.interfaces.IProductService;
 import com.Producto.API_Producto.repository.ProductoRepository;
 import com.Producto.API_Producto.util.NormalizerText;
+import org.hibernate.sql.Update;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
 public class ProductosService implements IProductService {
 
-    public final ProductoRepository ProductoRepository;
+    public final ProductoRepository productoRepository;
 
+    @Autowired
     public ProductosService(ProductoRepository productoRepository) {
-        ProductoRepository = productoRepository;
+        this.productoRepository = productoRepository;
     }
 
     @Override
-    public List<Productos> getProducts() {
-        List<Productos> listProducts=ProductoRepository.findAll();
+    public List<Producto> getProduct() {
+        List<Producto> listProducts= productoRepository.findAll();
         return listProducts;
     }
 
     @Override
-    public Productos findProducts(Long id) {
-        return ProductoRepository.findById(id).orElseThrow(()-> new ProductoNoEncontradoException(id));
+    public Producto findProduct(Long id) {
+        return productoRepository.findById(id)
+                .orElseThrow(()-> new ProductoNoEncontradoException(id));
     }
 
     @Override
-    public Productos saveProducts(Productos productos) {
-        String nombreNormalizado= NormalizerText.normalizar(productos.getNombreProducto());
-        if(ProductoRepository.existsByNombreProducto(nombreNormalizado)){
-            throw new ProductoExistenteException(productos.getNombreProducto());
+    public Producto saveProduct(ProductCreateDTO dto) {
+        Producto producto = new Producto();
+        String nombreNormalizado = NormalizerText.normalizar(dto.getNombreProducto());
+
+        if (productoRepository.existsByNombreProducto(nombreNormalizado)) {
+            throw new ProductoExistenteException(dto.getNombreProducto());
         }
-        return ProductoRepository.save(productos);
+
+        producto.setNombreProducto(nombreNormalizado);
+        producto.setDescripcion(dto.getDescripcion());
+        producto.setPrecio(dto.getPrecio());
+        producto.setStock(dto.getStock());
+        producto.setEstadoProducto(dto.getEstadoProducto());
+
+        return productoRepository.save(producto);
+
     }
 
     @Override
-    public void deleteProducts(Long id) {
-        if(!ProductoRepository.existsById(id)){
+    public void deleteProduct(Long id) {
+        if(!productoRepository.existsById(id)){
             throw new ProductoNoEncontradoException(id);
         }
-        ProductoRepository.deleteById(id);
+        productoRepository.deleteById(id);
     }
 
-    @Override
-    public Productos updateProducts(Long id,Productos productosNuevos) {
-        Productos productoExistente=ProductoRepository.findById(id).orElse(null);
-        if(productoExistente==null){
-            throw new ProductoNoEncontradoException(id);
-        }
-        if(productosNuevos.getNombreProducto()!=null){
-            String normalizarNombre=NormalizerText.normalizar(productosNuevos.getNombreProducto());
-            boolean productExists= ProductoRepository.existsByNombreProductoAndIdProducto(normalizarNombre,id);
-            if(productExists){
-                throw new ProductoExistenteException(productosNuevos.getNombreProducto());
+    public Producto updateProduct(Long id, ProductUpdateDTO dto) {
+
+        Producto productoExistente= productoRepository.findById(id)
+                .orElseThrow(() -> new ProductoNoEncontradoException(id));
+
+        if(dto.getNombreProducto() != null){
+            String nombreNormalizado = NormalizerText.normalizar(dto.getNombreProducto());
+
+            //Se verifica que no exista otro producto con el mismo nombre para evitar duplicados en la bases de datos
+            boolean productExist = productoRepository.existsByNombreProductoAndIdProductoNot(nombreNormalizado, id)
+                    && !productoExistente.getNombreProducto().equalsIgnoreCase(nombreNormalizado);
+            if(productExist){
+                throw new ProductoExistenteException(dto.getNombreProducto());
             }
-            productoExistente.setNombreProducto(normalizarNombre);
+            productoExistente.setNombreProducto(nombreNormalizado);
         }
-        if(productosNuevos.getDescripcion()!=null){
-            productoExistente.setDescripcion(productosNuevos.getDescripcion());
-    }
-        if(productosNuevos.getPrecio()!=null){
-            productoExistente.setPrecio(productosNuevos.getPrecio());
+
+        if(dto.getDescripcion()!=null){
+            productoExistente.setDescripcion(dto.getDescripcion());
         }
-        if(productosNuevos.getStock()!=null){
-            productoExistente.setStock(productosNuevos.getStock());
+
+        if(dto.getPrecio()!=null){
+            productoExistente.setPrecio(dto.getPrecio());
         }
-        if(productosNuevos.getEstadoProducto()!=null){
-            productoExistente.setEstadoProducto(productosNuevos.getEstadoProducto());
+        if(dto.getStock()!=null){
+            productoExistente.setStock(dto.getStock());
         }
-        ProductoRepository.save(productoExistente);
-        return productoExistente;
+        if(dto.getEstadoProducto()!=null){
+            productoExistente.setEstadoProducto(dto.getEstadoProducto());
+        }
+        return productoRepository.save(productoExistente);
     }
 }

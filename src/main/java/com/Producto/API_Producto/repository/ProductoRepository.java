@@ -9,6 +9,6 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
 
     boolean existsByNombreProducto(String nombre);
 
-    boolean existsByNombreProductoAndIdProducto(String nombre, Long id);
+    boolean existsByNombreProductoAndIdProductoNot(String nombre, Long id);
 
 }

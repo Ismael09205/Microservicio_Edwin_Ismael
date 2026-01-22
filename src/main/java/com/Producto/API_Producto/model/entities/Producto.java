@@ -6,11 +6,14 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
-@Table (name="Productos")
 @Entity
+@Table (name="productos")
 @Getter @Setter
 @AllArgsConstructor
 @NoArgsConstructor
@@ -21,31 +24,37 @@ public class Producto {
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long idProducto;
 
-    @NotBlank (message = "El nombre del producto no puede estar vacio")
+    private String codigoUnico;
+
+    @NotBlank (message = "El nombre del producto no puede estar vacío")
     @Size(min=3,max=100, message = "El nombre del producto debe tener entre 3 y 100 caracteres")
-    @Column(name="nombre_producto", nullable = false)
+    @Column(name="nombre_producto", nullable = false, unique = true)
     private String nombreProducto;
 
     @NotBlank(message = "La descripción del producto es obligatorio")
     @Size(min = 5, max = 255, message = "La descripción debe tener entre 5 y 255 caracteres")
-    @Column(length = 255)
+    @Column(name = "descripcion", length = 255, nullable = false)
     private String descripcion;
 
     @NotNull(message = "El precio del producto es obligatorio")
     @DecimalMin(value="0.01",message = "El precio del producto debe ser mayor a 0")
-    @Column(nullable=false)
-    private Double precio;
+    @Column(name = "precio", nullable=false, precision = 10, scale = 2)
+    private BigDecimal precio;
 
     @NotNull(message = "El stock es obligatorio")
     @Min(value = 0, message = "El stock no puede ser negativo")
-    @Column(nullable = false)
+    @Column(name = "stock", nullable = false)
     private Integer stock;
 
     @NotNull(message = "El estado del producto es obligatorio")
-    @Column(nullable = false)
+    @Column(name = "estado_producto", nullable = false)
     private Boolean estadoProducto; //Disponible=true o no disponible=false
 
-    @Column(name = "fecha_registro")
-    private LocalDate fechaRegistro;
+    private String imagenURL;
+
+    @Column(name = "fecha_registro", updatable = false)
+    @CreationTimestamp
+    private LocalDateTime fechaRegistro;
+
 }
 

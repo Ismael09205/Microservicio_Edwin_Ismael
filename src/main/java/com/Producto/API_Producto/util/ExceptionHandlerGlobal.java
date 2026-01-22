@@ -12,23 +12,32 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @RestControllerAdvice
 public class ExceptionHandlerGlobal {
+
     public DTOErrorResponse dtoError;
-    //Producto No Encontrado
+
+    //Producto No Encontrado(404)
     @ExceptionHandler(ProductoNoEncontradoException.class)
     public ResponseEntity<DTOErrorResponse> handleProductNotFound(ProductoNoEncontradoException ex, HttpServletRequest request) {
         DTOErrorResponse error = new DTOErrorResponse(
                 HttpStatus.NOT_FOUND.value(),
                 "Producto No Encontrado",
                 ex.getMessage(),
-                request.getRequestURI()
+                request.getRequestURI(),
+                LocalDateTime.now()
         );
 
          return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(error);
      }
+
+
      //Producto Existente
     @ExceptionHandler(ProductoExistenteException.class)
     public ResponseEntity<DTOErrorResponse> handleProductExist(ProductoExistenteException ex, HttpServletRequest request){
@@ -36,7 +45,8 @@ public class ExceptionHandlerGlobal {
                HttpStatus.CONFLICT.value(),
                "Producto Duplicado",
                ex.getMessage(),
-               request.getRequestURI()
+               request.getRequestURI(),
+               LocalDateTime.now()
        );
        return ResponseEntity
                .status(HttpStatus.CONFLICT)
@@ -44,54 +54,68 @@ public class ExceptionHandlerGlobal {
     }
 
     //Tipo de dato Incorrecto
-
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<DTOErrorResponse> handleTypeMismatch(
             MethodArgumentTypeMismatchException ex,
             HttpServletRequest request) {
 
-        return ResponseEntity.badRequest()
-                .body(new DTOErrorResponse(
-                        400,
-                        "Parametro_Invalido",
-                        "Envie un parametro valido de tipo " + ex.getRequiredType().getSimpleName(),
-                        request.getRequestURI()
-                ));
+        String mensaje = "El parametro '"+ex.getName()+"' debe ser de tipo"+ex.getRequiredType().getSimpleName();
+
+        DTOErrorResponse error = new DTOErrorResponse(HttpStatus.BAD_REQUEST.value(),
+                "Parametro invalido",
+                mensaje,
+                request.getRequestURI(),
+                LocalDateTime.now());
+        return ResponseEntity.badRequest().body(error);
     }
+
     //Excepcion JSON mal formado
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<DTOErrorResponse> handleJsonError(
             HttpMessageNotReadableException ex,
             HttpServletRequest request) {
-
-        return ResponseEntity.badRequest()
-                .body(new DTOErrorResponse(
-                        400,
-                        "JSON_Invalido",
-                        "El cuerpo de la solicitud es inválido o está mal formado",
-                        request.getRequestURI()
-                ));
+        String mensaje = "El cuerpo del formato json esta mal formado o es invalido";
+        DTOErrorResponse error = new DTOErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                "JSON invalido",
+                mensaje,
+                request.getRequestURI(),
+                LocalDateTime.now());
+        return ResponseEntity.badRequest().body(error);
     }
+
     //Validaciones
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<DTOErrorResponse> handleValidation(
             MethodArgumentNotValidException ex,
             HttpServletRequest request) {
 
-        String mensaje = ex.getBindingResult()
+        List<String> errores = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
                 .map(err -> err.getField() + ": " + err.getDefaultMessage())
-                .findFirst()
-                .orElse("Datos inválidos");
+                .collect(Collectors.toList());
 
-        return ResponseEntity.badRequest()
-                .body(new DTOErrorResponse(
-                        400,
-                        "VALIDACION_ERROR",
-                        mensaje,
-                        request.getRequestURI()
-                ));
+        DTOErrorResponse error = new DTOErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                "Error de validacion",
+                String.join("; ",errores),
+                request.getRequestURI(),
+                LocalDateTime.now());
+        return ResponseEntity.badRequest().body(error);
+    }
+
+    //Excepcion general por si pasa errores inesperados
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<DTOErrorResponse> handleGeneral(Exception ex, HttpServletRequest request){
+        String mensaje = "Ocurrio un error inesperado: ";
+        DTOErrorResponse error = new DTOErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "Error interno",
+                mensaje+ex.getMessage(),
+                request.getRequestURI(),
+                LocalDateTime.now());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 }
 
