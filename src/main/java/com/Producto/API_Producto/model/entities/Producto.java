@@ -1,5 +1,6 @@
 package com.Producto.API_Producto.model.entities;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -9,7 +10,6 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -54,8 +54,9 @@ public class Producto {
 
     @Size(max = 500, message = "La URL de la imagen es demasiado larga")
     @Column(name = "imagen_url",length = 500)
-    private String imagenURL = "Sin imagen";
+    private String imagenURL;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     @Column(name = "fecha_registro", updatable = false)
     @CreationTimestamp
     private LocalDateTime fechaRegistro;

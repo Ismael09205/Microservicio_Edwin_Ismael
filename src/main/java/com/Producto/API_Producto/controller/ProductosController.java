@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = "*")
+
 @RestController
 @RequestMapping ("/api")
 @Tag(name = "Productos", description = "Api para la gestion de productos.")
@@ -53,18 +53,18 @@ public class ProductosController {
 
 
     //Actualizar Producto
-    @PatchMapping("productos/{id}")
+    @PatchMapping("/productos/{id}")
     @Operation(summary = "Actualizar producto", description = "Actualiza un producto registrado")
     public ResponseEntity<Producto> actualizarProducto(@PathVariable Long id, @Valid @RequestBody ProductUpdateDTO productoActualizado) {
         return ResponseEntity.ok(productosService.updateProduct(id, productoActualizado));
     }
 
     //Eliminar Producto
-    @DeleteMapping("productos/{id}")
+    @DeleteMapping("/productos/{id}")
     @Operation(summary = "Eliminar producto", description = "Elimina un producto por ID")
-    public ResponseEntity<Void> eliminarProducto(@PathVariable Long id) {
+    public ResponseEntity<String> eliminarProducto(@PathVariable Long id) {
         productosService.deleteProduct(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("Producto eliminado correctamente");
     }
 
 }

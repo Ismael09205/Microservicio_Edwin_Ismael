@@ -11,6 +11,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -116,6 +117,24 @@ public class ExceptionHandlerGlobal {
                 request.getRequestURI(),
                 LocalDateTime.now());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    }
+    //Manejo de errores para URL invalida
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public ResponseEntity<DTOErrorResponse> handleNoHandlerFound(
+            NoHandlerFoundException ex,
+            HttpServletRequest request) {
+
+        DTOErrorResponse error = new DTOErrorResponse(
+                HttpStatus.NOT_FOUND.value(),
+                "URL invalida",
+                "La URL solicitada no existe, end point no encontrado",
+                request.getRequestURI(),
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(error);
     }
 }
 
